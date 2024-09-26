@@ -1,0 +1,8 @@
+__pycache__
+.mypy_cache/
+.pytest_cache/
+.venv/
+/work_dirs
+.python-version
+.vscode
+.idea
