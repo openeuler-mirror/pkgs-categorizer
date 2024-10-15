@@ -187,10 +187,10 @@ class base_oprate_with_db:
             print("sql:%s" %(sql_cmd))
             self.l_db.executemany(sql_cmd,insert_info_list)
             self.l_con.commit()
-            print("instert huge ok!")
+            print("insert huge ok!")
             return 0
         except:
-            print("instert huge error!")
+            print("insert huge error!")
             self.l_con.rollback()
             return 1
 
