@@ -1,0 +1,5 @@
+copyright :UnionTech Software Technology Co., Ltd. 
+
+                               Peking University
+
+           src/algorithm/VectorLayerer/hierarchy/config/config.py文件修改自mmengine项目 Copyright (c) Open-MMLab.
