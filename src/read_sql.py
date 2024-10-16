@@ -572,7 +572,7 @@ class REPO_CSV:
             cursor = self.repo_obj.getAllSrcrpm() #源码包列表
 
             for row in cursor:   #row in cursor.
-                src_name = row[0]       #row[0] is colum 0
+                src_name = row[0]       #row[0] is column 0
                 if src_name in all_src_dict.keys():
                     temp_set = all_src_dict[src_name]
                 else:

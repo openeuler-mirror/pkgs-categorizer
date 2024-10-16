@@ -36,7 +36,7 @@ classes = ['network', 'graph', 'multi-media', 'management', 'device', 'storage',
 save_path = f'./functions.csv'
 save_test_path = f'./0401.csv'
 # BERT模型，根据名称从 Huggingface 加载
-bert_path = "/home/huan/workspce/data/bert-base-uncased"
+bert_path = "/home/huan/workspace/data/bert-base-uncased"
 # 加载BERTTokenizer，与模型对应
 tokenizer = AutoTokenizer.from_pretrained(bert_path)
 
