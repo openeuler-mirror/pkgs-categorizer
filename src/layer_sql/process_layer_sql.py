@@ -481,7 +481,7 @@ class STORAGE_SQL:
         for table in table_name:
             res = self.l_sql.clear_table(table)
             if res != 0:
-                print("%s table clear faile" %table)
+                print("%s table clear failed" %table)
                 self.close_ldb() 
                 return 1
         self.close_ldb()
