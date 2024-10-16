@@ -94,7 +94,7 @@ class Get_rpm_Dep:
         pass
 
     # 以层级进行查询依赖包
-    # get indirect depdences pkgs as layer type
+    # get indirect dependences pkgs as layer type
     def get_indirect_deps(self,pkgs):
         indirectrpm = set()
         indirectrpm.clear

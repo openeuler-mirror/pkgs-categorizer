@@ -76,7 +76,7 @@ class STORAGE_SQL:
         res = self.l_sql.insert_huge_date_into_table("layer_class_info",info_list)
         if res:
             self.close_ldb()
-            print("inster layer_class_info failed")
+            print("insert layer_class_info failed")
             return 1
         self.close_ldb()
         return 0
@@ -104,7 +104,7 @@ class STORAGE_SQL:
         res = self.l_sql.value_is_in_table("pkgName",pkg,"layer_class_info")
         #软件包存在在数据库中 更新
         if res:
-            print("%s package alreadly in db" % pkg) 
+            print("%s package already in db" % pkg) 
             res = self.l_sql.update_pkg_in_table("layer_class_info",(layer,classification,pkg))
             #res = self.l_sql.update_layer_class_info(pkg,layer,classification)
         #软件包不再数据库中  添加
@@ -231,13 +231,13 @@ class STORAGE_SQL:
             if res:
                 res = self.l_sql.delete_pkgs('dependence',pkgName)
                 if res:
-                    print("%s delete failed,package dependence update stoped" % pkgName) 
+                    print("%s delete failed,package dependence update stopped" % pkgName) 
                     self.close_ldb()
                     return 1
             for depName in dep_dict[pkgName]:
                 res = self.l_sql.insert_pkg_into_table("dependence",(pkgName, depName))
                 if res:
-                    print("%s -> %s insert failed,package dependence update stoped" %(pkgName, depName)) 
+                    print("%s -> %s insert failed,package dependence update stopped" %(pkgName, depName)) 
                     self.close_ldb()
                     return 1
         self.close_ldb()
@@ -481,7 +481,7 @@ class STORAGE_SQL:
         for table in table_name:
             res = self.l_sql.clear_table(table)
             if res != 0:
-                print("%s table clear faile" %table)
+                print("%s table clear failed" %table)
                 self.close_ldb() 
                 return 1
         self.close_ldb()
