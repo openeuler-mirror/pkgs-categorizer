@@ -12,6 +12,9 @@ class fcfl_config:
     
     def __init__(self):
         self.cfg = configparser.ConfigParser()
+        if not os.path.isfile(CONFIGPATH):
+            print(os.getcwd())
+            raise Exception("{} doesn't exist!".format(CONFIGPATH))
         self.cfg.read(CONFIGPATH)
         pass
 
@@ -37,9 +40,13 @@ class fcfl_config:
         print(v_dot_path)
         return v_dot_path
 
-    def get_layer_config_file(self):
-        layer_config_file = self.cfg.get('layer',"path")
-        return 
+    def get_layerizer_data_path(self):
+        layer_path = self.cfg.get('layerizer-data',"path")
+        return layer_path
+    
+    def get_bert_model_path(self):
+        bert_model_path = self.cfg.get('bert-model', 'path')
+        return bert_model_path
 
 # global_info
 
