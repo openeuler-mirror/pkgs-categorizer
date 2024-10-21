@@ -46,7 +46,7 @@ classes = ['network', 'graph', 'multi-media', 'management', 'device', 'storage',
 # 结果输出目录
 save_path = f'./human_labels.csv'
 # BERT模型，根据名称从 Huggingface 加载
-#bert_path = "/home/huan/workspce/data/bert-base-uncased"
+#bert_path = "/home/huan/workspace/data/bert-base-uncased"
 bert_path = data_config.model_path
 
 # 加载BERTTokenizer，与模型对应

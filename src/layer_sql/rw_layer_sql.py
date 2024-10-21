@@ -51,7 +51,7 @@ class creat_tables(Enum):
 
     function_class = ''' CREATE TABLE function_class (pkgName      TEXT,
                                                       format       TEXT,
-                                                      genaric      TEXT,
+                                                      generic      TEXT,
                                                       graphic      TEXT,
                                                       manager      TEXT,
                                                       network      TEXT,
