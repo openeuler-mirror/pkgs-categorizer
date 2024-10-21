@@ -18,26 +18,24 @@ from transformers import BertModel, BertTokenizer, BertForSequenceClassification
 import requests
 from bs4 import BeautifulSoup
 
-
-
-
 import sys
 sys.path.append('..')
 from .set import node_set
 from .set import load_data
 
-def csvdict_to_all_set_bin(features, dot_path, test_set_json):
+def csv_dict_to_all_set_bin(features, dot_path, test_set_json):
     dic = {"内核": 1 ,"内核服务": 1 ,
         "核心工具": 1 ,"核心库": 1 ,"核心服务": 1 ,"基础环境": 1 ,
         "系统工具": 2 ,"系统服务": 2 ,"系统库": 2 ,"系统应用":2,
         "虚拟化": 3 ,"应用库": 3 ,"应用工具":3,"应用服务":3,"字体":3,
         "数据库":3,"云计算":3,"大数据":3,"桌面":3,"云原生":3,
-        "编程语言":2}
+        "编程语言":2 }
     #features = []
     name_to_index = {}
 
     # 从文件中读入依赖关系对list
-    dependency_relationship = load_data(dot_path) #[before, after] == before -> after
+    dependency_relationship = load_data(dot_path) 
+    #[before, after] == before -> after
 
     # s 是存储所有节点的set
     s = node_set()
@@ -59,7 +57,6 @@ def csvdict_to_all_set_bin(features, dot_path, test_set_json):
     print('最大的入度：', max_indegree)
     print('最大的出度：', max_outdegree)
 
-
     # features是列表
     for feature in features:
         feature['indegree'] = []
@@ -68,19 +65,9 @@ def csvdict_to_all_set_bin(features, dot_path, test_set_json):
         feature['outdegree'] = []
         feature['outdegree_description'] = []
         feature['outdegree_summary'] = []
-
-        if feature['src_name'] not in s.name2node:
-            continue
-        for node in s.name2node[feature['src_name']].in_node:
-            if node.packages[0] not in name_to_index:
-                continue
-            if features[name_to_index[node.packages[0]]]['src_name'] != '':
-                feature['indegree'].append(features[name_to_index[node.packages[0]]]['src_name'])
-            if features[name_to_index[node.packages[0]]]['description'] != '':
-                feature['indegree_description'].append(features[name_to_index[node.packages[0]]]['description'])
-            if features[name_to_index[node.packages[0]]]['summary'] != '':
-                feature['indegree_summary'].append(features[name_to_index[node.packages[0]]]['summary'])
-
+        feature['indegree'].append(features[name_to_index[node.packages[0]]]['src_name'])
+        feature['indegree_description'].append(features[name_to_index[node.packages[0]]]['description'])
+        feature['indegree_summary'].append(features[name_to_index[node.packages[0]]]['summary'])
 
         for node in s.name2node[feature['src_name']].out_node:
             if node.packages[0] not in name_to_index:
@@ -116,7 +103,6 @@ def csvdict_to_all_set_bin(features, dot_path, test_set_json):
 
     print("csvdict_to_all_set_bin run over")
 
-
 def csv_and_dot_to_json(csv_path, dot_path, test_set_json):
     dic = {"内核": 1 ,"内核服务": 1 ,
         "核心工具": 1 ,"核心库": 1 ,"核心服务": 1 ,"基础环境": 1 ,
@@ -124,6 +110,7 @@ def csv_and_dot_to_json(csv_path, dot_path, test_set_json):
         "虚拟化": 3 ,"应用库": 3 ,"应用工具":3,"应用服务":3,"字体":3,
         "数据库":3,"云计算":3,"大数据":3,"桌面":3,"云原生":3,
         "编程语言":2}
+    
     features = []
     name_to_index = {}
 
@@ -132,12 +119,20 @@ def csv_and_dot_to_json(csv_path, dot_path, test_set_json):
         reader = csv.reader(f)
         header = next(reader)
         
-        #feature = {'label': []}
         for row in reader:
-            feature ={'src_name' : row[0]}
+            feature = {'label': []}
+            if row[6] == '' :
+                continue
+
+            single_pkg_info = row[6].split('/')
+            # feature['label'] = dic[single_pkg_info[0]]
+            feature = {'label':  [dic[single_pkg_info[0]]] ,'src_name' : row[0]}
             feature['summary'] = row[4].replace("\n"," ",-1)
             feature['description'] = row[1].replace("\n"," ",-1)
+            feature['summary_nltk'] = nltk_process(feature['summary'])
+            feature['description_nltk'] = nltk_process(feature['description'])
             name_to_index[feature['src_name']] = len(features) #计算字典在放入当前项时的长度
+            # print(feature['label'])
             features.append(feature)
     #上述代码：把csv存放到features中去
 
@@ -163,15 +158,18 @@ def csv_and_dot_to_json(csv_path, dot_path, test_set_json):
     print('最大的入度：', max_indegree)
     print('最大的出度：', max_outdegree)
 
-
     # features是列表
     for feature in features:
         feature['indegree'] = []
         feature['indegree_description'] = []
+        feature['indegree_description_nltk'] = []
         feature['indegree_summary'] = []
+        feature['indegree_summary_nltk'] = []
         feature['outdegree'] = []
         feature['outdegree_description'] = []
+        feature['outdegree_description_nltk'] = []
         feature['outdegree_summary'] = []
+        feature['outdegree_summary_nltk'] = []
 
         if feature['src_name'] not in s.name2node:
             continue
@@ -183,9 +181,12 @@ def csv_and_dot_to_json(csv_path, dot_path, test_set_json):
                 feature['indegree'].append(features[name_to_index[node.packages[0]]]['src_name'])
             if features[name_to_index[node.packages[0]]]['description'] != '':
                 feature['indegree_description'].append(features[name_to_index[node.packages[0]]]['description'])
+            if features[name_to_index[node.packages[0]]]['description_nltk'] != '':
+                feature['indegree_description_nltk'].append(features[name_to_index[node.packages[0]]]['description_nltk'])
             if features[name_to_index[node.packages[0]]]['summary'] != '':
                 feature['indegree_summary'].append(features[name_to_index[node.packages[0]]]['summary'])
-
+            if features[name_to_index[node.packages[0]]]['summary_nltk'] != '':
+                feature['indegree_summary_nltk'].append(features[name_to_index[node.packages[0]]]['summary_nltk'])
 
         for node in s.name2node[feature['src_name']].out_node:
             if node.packages[0] not in name_to_index:
@@ -194,38 +195,178 @@ def csv_and_dot_to_json(csv_path, dot_path, test_set_json):
                 feature['outdegree'].append(features[name_to_index[node.packages[0]]]['src_name'])
             if features[name_to_index[node.packages[0]]]['description'] != '':
                 feature['outdegree_description'].append(features[name_to_index[node.packages[0]]]['description'])
+            if features[name_to_index[node.packages[0]]]['description_nltk'] != '':
+                feature['outdegree_description_nltk'].append(features[name_to_index[node.packages[0]]]['description_nltk'])
             if features[name_to_index[node.packages[0]]]['summary'] != '':
                 feature['outdegree_summary'].append(features[name_to_index[node.packages[0]]]['summary'])
+            if features[name_to_index[node.packages[0]]]['summary_nltk'] != '':
+                feature['outdegree_summary_nltk'].append(features[name_to_index[node.packages[0]]]['summary_nltk'])
 
     for feature in features:
         if len(feature['indegree']) == 0:
             feature['indegree'].append('')
         if len(feature['indegree_description']) == 0:
             feature['indegree_description'].append('')
+        if len(feature['indegree_description_nltk']) == 0:
+            feature['indegree_description_nltk'].append('')
         if len(feature['indegree_summary']) == 0:
             feature['indegree_summary'].append('')
-        
+        if len(feature['indegree_summary_nltk']) == 0:
+            feature['indegree_summary_nltk'].append('')
+
         if len(feature['outdegree']) == 0:
             feature['outdegree'].append('')
         if len(feature['outdegree_description']) == 0:
             feature['outdegree_description'].append('')
+        if len(feature['outdegree_description_nltk']) == 0:
+            feature['outdegree_description_nltk'].append('')
         if len(feature['outdegree_summary']) == 0:
             feature['outdegree_summary'].append('')
-
+        if len(feature['outdegree_summary_nltk']) == 0:
+            feature['outdegree_summary_nltk'].append('')
+        
     random.shuffle(features)
     l = len(features)
     test_set = features
 
     print(f'总长度：{l}, 测试集长度：{len(test_set)}')
-
+   
+    # print(features)
     with open(test_set_json, 'w') as f:
         json.dump(features,f)
 
     print("to json run over")
 
+def csv_and_dot_to_json_predict(csv_path, dot_path, test_set_json):
+    
+    features = []
+    name_to_index = {}
 
+    # 读取文件
+    with open(csv_path, 'r') as f:
+        reader = csv.reader(f)
+        header = next(reader)
+        
+        for row in reader:
+            feature = {}
+            if row[6] == '' :
+                continue
 
+            # single_pkg_info = row[6].split('/')
+            # # feature['label'] = dic[single_pkg_info[0]]
+            # feature = {'label':  [dic[single_pkg_info[0]]] ,'src_name' : row[0]}
+            print(row[0])
+            feature['src_name'] = row[0]
+            feature['summary'] = row[2].replace("\n"," ",-1)
+            feature['description'] = row[1].replace("\n"," ",-1)
+            feature['summary_nltk'] = nltk_process(feature['summary'])
+            feature['description_nltk'] = nltk_process(feature['description'])
+            name_to_index[feature['src_name']] = len(features) #计算字典在放入当前项时的长度
+            # print(feature['label'])
+            features.append(feature)
+    #上述代码：把csv存放到features中去
 
+    # 从文件中读入依赖关系对list
+    dependency_relationship = load_data(dot_path) #[before, after] == before -> after
+
+    # s 是存储所有节点的set
+    s = node_set()
+    # 将依赖关系对list添加到点集中,name2node是个字典，存名和pre，名和post，每个节点都存了in和out
+    s.add_pairs(dependency_relationship)
+
+    # 找到最大的出度和入度，用于补全
+    max_indegree = 0
+    max_outdegree = 0
+    # features是列表, 每一项是字典
+    for feature in features:
+        if feature['src_name'] not in s.name2node:
+            continue
+        if len(s.name2node[feature['src_name']].in_node) > max_indegree:
+            max_indegree = len(s.name2node[feature['src_name']].in_node)
+        if len(s.name2node[feature['src_name']].out_node) > max_outdegree:
+            max_outdegree = len(s.name2node[feature['src_name']].out_node)
+    print('最大的入度：', max_indegree)
+    print('最大的出度：', max_outdegree)
+
+    # features是列表
+    for feature in features:
+        feature['indegree'] = []
+        feature['indegree_description'] = []
+        feature['indegree_description_nltk'] = []
+        feature['indegree_summary'] = []
+        feature['indegree_summary_nltk'] = []
+        feature['outdegree'] = []
+        feature['outdegree_description'] = []
+        feature['outdegree_description_nltk'] = []
+        feature['outdegree_summary'] = []
+        feature['outdegree_summary_nltk'] = []
+
+        if feature['src_name'] not in s.name2node:
+            continue
+        # 遍历每个节点的in_node
+        for node in s.name2node[feature['src_name']].in_node:
+            if node.packages[0] not in name_to_index:
+                continue
+            if features[name_to_index[node.packages[0]]]['src_name'] != '':
+                feature['indegree'].append(features[name_to_index[node.packages[0]]]['src_name'])
+            if features[name_to_index[node.packages[0]]]['description'] != '':
+                feature['indegree_description'].append(features[name_to_index[node.packages[0]]]['description'])
+            if features[name_to_index[node.packages[0]]]['description_nltk'] != '':
+                feature['indegree_description_nltk'].append(features[name_to_index[node.packages[0]]]['description_nltk'])
+            if features[name_to_index[node.packages[0]]]['summary'] != '':
+                feature['indegree_summary'].append(features[name_to_index[node.packages[0]]]['summary'])
+            if features[name_to_index[node.packages[0]]]['summary_nltk'] != '':
+                feature['indegree_summary_nltk'].append(features[name_to_index[node.packages[0]]]['summary_nltk'])
+
+        for node in s.name2node[feature['src_name']].out_node:
+            if node.packages[0] not in name_to_index:
+                continue
+            if features[name_to_index[node.packages[0]]]['src_name'] != '':
+                feature['outdegree'].append(features[name_to_index[node.packages[0]]]['src_name'])
+            if features[name_to_index[node.packages[0]]]['description'] != '':
+                feature['outdegree_description'].append(features[name_to_index[node.packages[0]]]['description'])
+            if features[name_to_index[node.packages[0]]]['description_nltk'] != '':
+                feature['outdegree_description_nltk'].append(features[name_to_index[node.packages[0]]]['description_nltk'])
+            if features[name_to_index[node.packages[0]]]['summary'] != '':
+                feature['outdegree_summary'].append(features[name_to_index[node.packages[0]]]['summary'])
+            if features[name_to_index[node.packages[0]]]['summary_nltk'] != '':
+                feature['outdegree_summary_nltk'].append(features[name_to_index[node.packages[0]]]['summary_nltk'])
+
+    for feature in features:
+        if len(feature['indegree']) == 0:
+            feature['indegree'].append('')
+        if len(feature['indegree_description']) == 0:
+            feature['indegree_description'].append('')
+        if len(feature['indegree_description_nltk']) == 0:
+            feature['indegree_description_nltk'].append('')
+        if len(feature['indegree_summary']) == 0:
+            feature['indegree_summary'].append('')
+        if len(feature['indegree_summary_nltk']) == 0:
+            feature['indegree_summary_nltk'].append('')
+
+        if len(feature['outdegree']) == 0:
+            feature['outdegree'].append('')
+        if len(feature['outdegree_description']) == 0:
+            feature['outdegree_description'].append('')
+        if len(feature['outdegree_description_nltk']) == 0:
+            feature['outdegree_description_nltk'].append('')
+        if len(feature['outdegree_summary']) == 0:
+            feature['outdegree_summary'].append('')
+        if len(feature['outdegree_summary_nltk']) == 0:
+            feature['outdegree_summary_nltk'].append('')
+        
+    random.shuffle(features)
+    l = len(features)
+    test_set = features
+
+    print(f'总长度：{l}, 测试集长度：{len(test_set)}')
+   
+    # print(features)
+    with open(test_set_json, 'w') as f:
+        json.dump(features,f)
+
+    print("to json run over")
+    # return test_set_json
 
 def check_label_partition(features):
     count = collections.defaultdict(int)
@@ -277,8 +418,6 @@ def generate_vector_map():
         "编程语言":2}
     features = []
     name_to_index = {}
-
-
 
     # 读取文件
     with open(f'./data/1228_bin.csv', 'r') as f:
