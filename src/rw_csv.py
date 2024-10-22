@@ -6,12 +6,10 @@ import csv
 import sys
 import os
 import config
-import pprint
-import get_dep
 from  layer_sql.process_layer_sql import  STORAGE_SQL
 from config import fcfl_config
-import hawkey
-csv.field_size_limit(500*1024*1024)
+import pandas as pd
+
 class CSV:
     def write_csv(self,csv_dict_list,csv_name,table_type):
         """
@@ -88,133 +86,22 @@ class CSV:
 
         return file_name
 
-
-    def str2_is_in_str1(self,str1,str2):
-        if str2 and str2 not in str1:
-            return str1 + '\n' + str2
-        else :
-            return str1
-
-
-    def generate_src_csv_files(self, repoDir):
-        # 从repo中获得
-        def primary_pkg_strategy(pkg, src_pkg):
-            if pkg == get_dep.srpmName_analyze(src_pkg):
-                return True
-            else:
-                return False
-        '''
-        根据字典生成csv文件
-        '''
-        # 创建列表字符串
-        csv_list =[]
-        csv_obj = sql.REPO_CSV()
-        all_src_dict = {}
-         # 获取字典
-        all_src_dict = csv_obj.get_all_repo_dict(repoDir)
-        for src_name in all_src_dict.keys():
-            csv_dict = {}
-            zero_description = ''
-            zero_summary = ''
-            description = ''
-            summary = ''
-            primary_rpm_name =''
-            primary_description = ''
-            primary_summary = ''
-            rpm_name = ''
-            have_not_primary_pkg = []
-            if src_name in config.src_zero_in_list:
-                for rpm_info in all_src_dict[src_name]:
-                    #if primary_pkg_strategy(rpm_info[0],src_name):
-                    #判断主包
-                    if rpm_info[0]==src_name:
-                        primary_rpm_name = rpm_info[0]
-                        primary_description = rpm_info[1]
-                        primary_summary = rpm_info[2]
-                        zero_description = self.str2_is_in_str1(zero_description,rpm_info[1])
-                        zero_summary =  self.str2_is_in_str1(zero_summary,rpm_info[2])
-                        rpm_name = self.str2_is_in_str1(rpm_name,rpm_info[0])
-                    else :
-                        if csv_obj.rpm_is_nead_remove_for_csv(rpm_info[0]) == 0:
-                            have_not_primary_pkg.append(rpm_info[0])
-                            zero_description = self.str2_is_in_str1(zero_description,rpm_info[1])
-                            zero_summary = self.str2_is_in_str1(zero_summary,rpm_info[2])
-                            rpm_name = self.str2_is_in_str1(rpm_name,rpm_info[0])
-                if primary_rpm_name == '':
-                    for pkg in have_not_primary_pkg : 
-                        primary_rpm_name +=  pkg + '\n'
-                    primary_description = zero_description
-                    primary_summary = zero_summary
-                
-                csv_dict["src_name"] = src_name 
-                csv_dict["description"] = description
-                csv_dict["summary"] = summary
-                csv_dict["zero_description"] = zero_description
-                csv_dict["zero_summary"] = zero_summary   
-                csv_dict["primary_rpm_name"] = primary_rpm_name
-                csv_dict["primary_description"] = primary_description
-                csv_dict["primary_summary"] = primary_summary
-                csv_dict["rpm_name"] = rpm_name
-            else:
-                #不在０list
-                for rpm_info in all_src_dict[src_name]:
-                    #if primary_pkg_strategy(rpm_info[0],src_name):
-                    if rpm_info[0]==src_name:
-                        primary_rpm_name = rpm_info[0]
-                        primary_description = rpm_info[1]
-                        primary_summary = rpm_info[2]  
-                        description =  self.str2_is_in_str1(description,rpm_info[1])
-                        summary = self.str2_is_in_str1(summary,rpm_info[2])
-                        rpm_name = self.str2_is_in_str1(rpm_name,rpm_info[0])
-                    else :
-                        if csv_obj.rpm_is_nead_remove_for_csv(rpm_info[0]) == 0:
-                            have_not_primary_pkg.append(rpm_info[0])
-                            description = self.str2_is_in_str1( description,rpm_info[1])
-                            summary = self.str2_is_in_str1(summary,rpm_info[2])
-                            rpm_name = self.str2_is_in_str1(rpm_name,rpm_info[0])
-                if primary_rpm_name == '':
-                    for pkg in have_not_primary_pkg : 
-                        primary_rpm_name +=  pkg + '\n'
-                    primary_description = description
-                    primary_summary = summary
-
-                csv_dict["src_name"] = src_name 
-                #csv_dict["src_name"] = hawkey.split_nevra(src_name).name
-                csv_dict["description"] = description
-                csv_dict["summary"] = summary
-                csv_dict["zero_description"] = zero_description
-                csv_dict["zero_summary"] = zero_summary   
-                csv_dict["primary_rpm_name"] = primary_rpm_name
-                csv_dict["primary_description"] = primary_description
-                csv_dict["primary_summary"] = primary_summary
-                csv_dict["rpm_name"] = rpm_name
-            csv_list.append(csv_dict)
-        return self.write_csv(csv_list,"src_all","src_header")
-
     def generate_rpm_all_csv_files(self, repoDir):
         """
         生成所有csv文件
         """
         csv_obj = sql.REPO_CSV()
+
+        all_csv_head = ["rpm_name","zero_description","zero_summary","description",
+                        "summary","primary_rpm_name","primary_description",
+                        "primary_summary","rpm_name"]
+        fcfl_configs = fcfl_config()
         all_csv_list = []
         csv_dict_dict = csv_obj.get_all_rpm_repo_dict(repoDir)
         for rpmpkg in csv_dict_dict.keys():
-            csv_dict = {}
-            zero_description = ''
-            zero_summary = ''
-            description = ''
-            summary = ''
-            rpm_name = rpmpkg
-            src_name = ''
-            version = ''
-            release = ''
             sets = csv_dict_dict[rpmpkg]
             for i in sets:
-                src_name = i[2]
-                version = i[3]
-                release = i[4]
                 if rpmpkg in config.rpm_zero_in_list:
-                    rpm_name = rpmpkg
                     zero_description = i[0]
                     zero_summary = i[1]
                     description = ''
@@ -224,87 +111,13 @@ class CSV:
                     zero_summary = ''
                     description = i[0]
                     summary = i[1]
-                csv_dict['rpm_name'] = rpm_name
-                csv_dict['zero_description'] = zero_description
-                csv_dict['zero_summary'] = zero_summary
-                csv_dict['description'] = description
-                csv_dict['summary'] = summary
-                csv_dict['src_name'] = src_name
-                csv_dict['srcPkgVersion'] = version
-                csv_dict['srcPkgRelease'] = release
-                all_csv_list.append(csv_dict)
-        csv_path = self.write_csv(all_csv_list,"rpm_all","rpm_header")
-        return csv_path
 
-    def generate_rpm_csv_files_for_test(self):
-        """
-        生成所有csv文件
-        """
-        def primary_vs_strategy(vs1, rls1,vs2, rls2):
-
-            if vs2 in vs1 and rls2 in rls1:
-                return vs1, rls1
-            else:
-                return vs1 + '\n' + vs2, rls1 + '\n' + rls2
-
-        csv_obj = sql.REPO_CSV()
-        all_csv_list = []
-        csv_dict_dict = csv_obj.get_all_rpm_repo_dict_for_test()
-        for rpmpkg in csv_dict_dict.keys():
-            csv_dict = {}
-            zero_description = ''
-            zero_summary = ''
-            description = ''
-            summary = ''
-            rpm_name = rpmpkg
-            src_name = csv_dict_dict[rpmpkg][2]
-            version = ''
-            release = ''
-            if rpmpkg in config.rpm_zero_in_list:
-                rpm_name = rpmpkg
-                zero_description = csv_dict_dict[rpmpkg][0]
-                zero_summary = csv_dict_dict[rpmpkg][1]
-                description = ''
-                summary = ''
-            else :
-                zero_description = '' 
-                zero_summary = ''
-                description = csv_dict_dict[rpmpkg][0]
-                summary = csv_dict_dict[rpmpkg][1]
-            version,release = primary_vs_strategy (version,release,csv_dict_dict[rpmpkg][3],csv_dict_dict[rpmpkg][4])
-            csv_dict['rpm_name'] = rpm_name
-            csv_dict['zero_description'] = zero_description
-            csv_dict['zero_summary'] = zero_summary
-            csv_dict['description'] = description
-            csv_dict['summary'] = summary
-            csv_dict['src_name'] = src_name
-            csv_dict['srcPkgVersion'] = version
-            csv_dict['srcPkgRelease'] = release
-            all_csv_list.append(csv_dict)
-        csv_path = self.write_csv(all_csv_list,"rpm_all_test","rpm_header")
-        return csv_path
-
-    def generate_fcfl_pkg_description_csv_file(self,pkgname):
-        csv_list = []
-        new_db = STORAGE_SQL()
-        csv_dict = new_db.get_pkg_desc_csv_dict_from_table(pkgname)
-
-        if csv_dict != {}:
-            new_csv_dict = {}
-            new_csv_dict["src_name"] = pkgname
-            new_csv_dict["zero_description"] = csv_dict[pkgname][0]
-            new_csv_dict["zero_summary"] =  csv_dict[pkgname][1]
-            new_csv_dict["description"] = csv_dict[pkgname][2]
-            new_csv_dict["summary"] = csv_dict[pkgname][3]
-            new_csv_dict["primary_rpm_name"] = csv_dict[pkgname][4]
-            new_csv_dict["primary_description"] = csv_dict[pkgname][5]
-            new_csv_dict["primary_summary"] = csv_dict[pkgname][6]
-            new_csv_dict["rpm_name"] = csv_dict[pkgname][7]
-            csv_list.append(new_csv_dict)
-            return self.write_csv(csv_list,"fcfl_"+pkgname+"_dec","src_header")
-        else :
-            print("%s not in table" %pkgname)
-            return ''
+                all_csv_list.append([rpmpkg,zero_description,zero_summary,
+                                     description,summary,i[2],i[3],i[4]])
+        df = pd.DataFrame(all_csv_list, columns = all_csv_head)
+        df.to_csv("{}rpm_all.csv".format(fcfl_configs.get_csv_path()))
+        # csv_path = self.write_csv(all_csv_list,"rpm_all","rpm_header")
+        return df
 
     def generate_fcfl_pkg_rpm_description_csv_file(self,pkgname):
         csv_list = []   
