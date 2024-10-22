@@ -70,7 +70,6 @@ def src_is_need_remove(pkgName):
         return True
     return False
 
-
 """
 获取直接依赖有两种方法，用方法一生成所有软件包的dot文件大约是40s，方法二大约15s
 基本思路：
@@ -126,7 +125,6 @@ class DEP:
             return False
         return False
 
-
     def findfromprovs(self, req_name,  req_version, req_release, req_flags):
         for prov_flag, prov_pid in self.prov_dict[req_name]:
             if self.getDepFromPkgDict(prov_pid, req_name,  req_version, req_release, req_flags) == True:
@@ -141,8 +139,9 @@ class DEP:
 
     def saveToDict(self, prov_src_nvr, prov_nvr, pkg_dep_name):
         # 存rpm
-        if pkg_dep_name == self.rpm_name or\
-                rpm_is_need_remove(pkg_dep_name) == True :
+        # if pkg_dep_name == self.rpm_name or\
+        #         rpm_is_need_remove(pkg_dep_name) == True :
+        if pkg_dep_name == self.rpm_name :                    
             return True
         try:
             #self.rpm_dict[self.rpm_name].add(hawkey.split_nevra(prov_nvr).name)
@@ -152,8 +151,9 @@ class DEP:
             quit()
 
         # 存srpm
-        if prov_src_nvr.rsplit('-',2)[-3] == self.src_name or\
-                src_is_need_remove(prov_src_nvr) == True:
+        # if prov_src_nvr.rsplit('-',2)[-3] == self.src_name or\
+        #         src_is_need_remove(prov_src_nvr) == True:
+        if prov_src_nvr.rsplit('-',2)[-3] == self.src_name :                    
             return True
         try:
             self.src_dict[self.src_name].add(prov_src_nvr.rsplit('-',2)[-3])
@@ -180,11 +180,11 @@ class DEP:
         return False
 
     def build_nvr(self, name, version, release):
-        nvr=''+name
+        nvr= '' + name        
         if version is not None :
-            nvr=''+name+'-'+str(version)
+            nvr='' + name + '-' + str(version)            
             if release is not None: 
-                nvr=''+str(name)+'-'+str(version)+'-'+str(release)
+                nvr='' + str(name) + '-' + str(version) + '-' + str(release)                
         return nvr
 
     def get_one_repo_rpm_form_dep(self,repoType, repoDir):
@@ -208,10 +208,10 @@ class DEP:
             self.version  = pack_value[2]
             self.release  = pack_value[3]
 
-            if rpm_is_need_remove(self.rpm_name):
-                continue
-            if src_is_need_remove(srcFileName):
-                continue
+            # if rpm_is_need_remove(self.rpm_name):
+            #     continue
+            # if src_is_need_remove(srcFileName):
+            #     continue
 
             self.src_nvr = srcFileName.replace(".src.rpm","")
             self.rpm_nvr = self.build_nvr(self.rpm_name, self.version, self.release)
@@ -233,8 +233,6 @@ class DEP:
             #    self.rpm_dict[self.rpm_nvr] =set()
             # 用name
             if self.rpm_name not in self.rpm_dict.keys():
-                if self.rpm_name == "aspnetcore":
-                    print("1111111111")
                 self.rpm_dict[self.rpm_name] =set()
 
             if pkgid not in self.req_dict:
@@ -279,7 +277,6 @@ class DEP:
                 continue
             #else:
                 #print("   not found!,pkg=", self.rpm_name, "deps:", req_name)
-
 
     def search_src_name_files(self,sql_path, req_n, req_v, req_r, req_f, repoDir):
         """
@@ -331,7 +328,6 @@ class DEP:
                         return self.saveToDict(src_dep_nvr,pkg_dep_nvr,item[1])
             return False
 
-
     def findFromFilesTab(self, req_name,  req_v, req_r, req_flags):
         if req_flags is None:
             p_pkgkeys = self.dep_obj.repo_obj.getPkgkeyFromFiles_name(req_name)
@@ -341,11 +337,12 @@ class DEP:
             for p_pkgid in p_pkgkeys:
                 depsInfo = self.dep_obj.repo_obj.getSNVRFromPkg(p_pkgid)
                 for item in depsInfo:
-                    #print("   find from FilesTab if req_name", req_name, "req_src:", item[0],"N:",  item[1],"V:",  item[2],"R:", item[3])
+                    #print("find from FilesTab if req_name", req_name, "req_src:", item[0],"N:",  item[1],"V:",  item[2],"R:", item[3])                    
                     src_dep_nvr = item[0].replace(".src.rpm","")
                     pkg_dep_nvr = self.build_nvr(item[1], item[2], item[3])
                     return self.saveToDict(src_dep_nvr,pkg_dep_nvr,item[1])
             return False
+        
         else:
             p_pkgkeys = self.dep_obj.repo_obj.getPkgkeyFromFiles_name(req_name)
             if len(p_pkgkeys) == 0:
@@ -360,7 +357,6 @@ class DEP:
                     src_dep_nvr = item[0].replace(".src.rpm","")
                     return self.saveToDict(src_dep_nvr,pkg_dep_nvr,item[1])
             return False
-
 
 #repo_type_list = ["baseOs","appStream","DDE","Experimental","Extras","HighAvailability","Plus","PowerTools"]
 if __name__ == "__main__":
