@@ -353,7 +353,6 @@ class DEP:
                     pkg_dep_nvr = self.build_nvr(item[1], item[2], item[3])
                     return self.saveToDict(src_dep_nvr,pkg_dep_nvr,item[1])
             return False
-        
         else:
             p_pkgkeys = self.dep_obj.repo_obj.getPkgkeyFromFiles_name(req_name)
             if len(p_pkgkeys) == 0:
