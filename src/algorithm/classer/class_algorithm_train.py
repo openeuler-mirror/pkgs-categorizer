@@ -9,7 +9,7 @@ import pandas as pd
 import time
 from models import *
 from utils import *
-from preprocess import *
+# from preprocess import *
 import argparse
 
 import sys
@@ -48,7 +48,7 @@ tokenizer = AutoTokenizer.from_pretrained(bert_path)
 
 # 节点数据预处理，将 summary 和 description 拼合，并将标签分为分类标签、分层标签、分层分类标签
 # 边数据预处理，将 dot 文件表示的依赖关系转化为 csv 表示
-preprocess_data(save_path)
+# preprocess_data(save_path)
 
 # 数据读取
 print("开始读取数据")

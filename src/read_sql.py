@@ -8,6 +8,11 @@ from config import src_zero_in_list,rpm_zero_in_list,repo_type_list,fcfl_config
 import pprint
 import hawkey
 
+def find_directories(path):
+    directories = []
+    for root, dirs, files in os.walk(path):
+        directories.extend(dirs)
+    return directories
 
 class REPO_SQL:
 
@@ -22,6 +27,7 @@ class REPO_SQL:
         返回路径
         '''
         fcfl_config_obj = fcfl_config()
+        #path = repoDir +'/' + repoFile +'/'
         path = repoDir +'/' + repoFile +'/'
         file_list = os.listdir(path)
         for file_name in file_list:
@@ -566,7 +572,7 @@ class REPO_CSV:
         return src_name:{bin_name,desc, summ)
         '''
         all_src_dict = {}
-        for repo_type in repo_type_list:
+        for repo_type in find_directories(repoDir):
             path = self.repo_obj.read_path(repo_type, repoDir, "primary")
             self.repo_obj.open_sql(path)
             cursor = self.repo_obj.getAllSrcrpm() #源码包列表
@@ -591,7 +597,7 @@ class REPO_CSV:
     def get_all_rpm_repo_dict_for_test(self, repoDir):
 
         all_src_dict = {}
-        for repo_type in repo_type_list:
+        for repo_type in find_directories(repoDir):
             path = self.repo_obj.read_path(repo_type, repoDir, "primary")
             self.repo_obj.open_sql(path)
             rpm_info_list = self.repo_obj.read_all_rpm_info() #源码包列表
@@ -616,7 +622,7 @@ class REPO_CSV:
         '''
         读全部repo,返回{rpmname:(desc,summ,srpmname, version, release, pid)}
         '''
-        for repo_type in repo_type_list:
+        for repo_type in find_directories(repoDir):
             path = self.repo_obj.read_path(repo_type, repoDir, "primary")
             self.repo_obj.open_sql(path)
             rpm_info_list = self.repo_obj.read_all_rpm_info() #二进制包列表
@@ -624,8 +630,8 @@ class REPO_CSV:
 
             for rpm_info in rpm_info_list:
                 pid ,rpm_sourcerpm,name,version,release,description,summary= rpm_info
-                if get_dep.rpm_is_need_remove(name):
-                    continue
+                # if get_dep.rpm_is_need_remove(name):
+                #     continue
                 temp_set = set() 
                 rpmname = name
                 temp_set = {(description,summary,rpm_sourcerpm, version, release, pid)}

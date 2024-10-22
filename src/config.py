@@ -52,7 +52,7 @@ class fcfl_config:
 
 #文件保存路径
 dot_path = "/var/fcfl/dot_files/"
-repo_type_list = ["baseOs","appStream","DDE","Experimental","Extras","HighAvailability","Plus","PowerTools"]
+# repo_type_list = ["baseOs","appStream","DDE","Experimental","Extras","HighAvailability","Plus","PowerTools"]
 
 # table header
 header_dict = {
