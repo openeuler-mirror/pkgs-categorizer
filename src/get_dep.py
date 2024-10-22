@@ -5,6 +5,17 @@ import read_sql as sql
 import config 
 import pprint
 import hawkey 
+import os
+import time
+# from read_sql import find_directories
+
+def find_directories(path):
+    directories = []
+    for root, dirs, files in os.walk(path):
+        directories.extend(dirs)
+    return directories
+
+
 test_name = 'cups'
 def srpmName_analyze(srpmName):
     """
@@ -268,7 +279,7 @@ class DEP:
             #跨文件查找提供者
             #else:
             findout = False
-            for sql_type in config.repo_type_list:
+            for sql_type in find_directories(repoDir):
                 if sql_type == self.db_type:
                     continue
                 #print("   find ", req_name,"from DB:", sql_type, "...")
@@ -364,7 +375,12 @@ class DEP:
 
 #repo_type_list = ["baseOs","appStream","DDE","Experimental","Extras","HighAvailability","Plus","PowerTools"]
 if __name__ == "__main__":
+    start_time = time.time()  
+    repoDirs = "/home/test/workspace/1070/BaseOs/"
     dep = DEP()
-    dep.get_one_repo_rpm_form_dep("appStream")
-    dep.get_one_repo_src_form_dep("appStream")
+    #dep.get_one_repo_rpm_form_dep("BaseOs","/home/test/workspace/1070/")
+    dep.get_pkg_dep_dict("BaseOs","/home/test/workspace/1070/")
+    # dep.get_one_repo_src_form_dep("appStream")
+    end_time = time.time()  
+    print(f"运行时间: {end_time - start_time}秒")
 

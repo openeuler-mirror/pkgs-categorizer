@@ -1,7 +1,8 @@
 # SPDX-FileCopyrightText: 2024 UnionTech Software Technology Co., Ltd.
 # SPDX-License-Identifier: Apache-2.0
 
-from get_dep import DEP
+from get_dep import DEP 
+from read_sql import find_directories
 from graphviz import Digraph  
 import sys
 import hawkey
@@ -23,7 +24,7 @@ class DOT:
         """
         #判断文件是否存在  存在先删除
         name = name + '.dot'
-        if name in os.listdir(config.get_dot_path):
+        if name in os.listdir(config.dot_path):
             os.remove(config.dot_path + name)
         path = config.dot_path + name 
         self.generate_dotfile(dep_dict, path)
@@ -106,12 +107,12 @@ class DOT:
         """
         dep_obj = DEP()
         all_dep_dict = {}
-        for type in config.repo_type_list:
+        for type in  find_directories(repoDir):
             dep_dict = {}
             dep_dict = dep_obj.get_one_repo_src_form_dep(type, repoDir)
             all_dep_dict = self.merge_dot_dict(dep_dict,all_dep_dict)
             
-        path = self.generate_dot(all_dep_dict,"src_all")
+        path = self.generate_dot(all_dep_dict,"f")
         return path
 
     # 生成总dot文件 
@@ -134,14 +135,14 @@ class DOT:
         path = self.generate_dot(dot_dict,"fcfl_"+pkg+"_dep")
         return path
 
-    def generate_rpm_all_dotFiles(self, repoDir):
+    def generate_rpm_all_dotFiles(self, repoDir,dotfile):
         """
         生成总的rpm dot时更新一下入度和出度为0的列表
         """
         dep_obj = DEP()
         all_dep_dict = {}
-        all_dep_dict = self.generate_rpm_all_dot_dict(repoDir);
-        path = self.generate_dot(all_dep_dict,"rpm_all")
+        all_dep_dict = self.generate_rpm_all_dot_dict(repoDir)
+        path = self.generate_dot(all_dep_dict,dotfile)
         return path
 
     def generate_rpm_all_dot_dict(self, repoDir):
@@ -150,7 +151,8 @@ class DOT:
         """
         dep_obj = DEP()
         all_dep_dict = {}
-        for type in config.repo_type_list:
+        for type in find_directories(repoDir):
+            print(type)
             dep_dict = {}
             dep_dict = dep_obj.get_one_repo_rpm_form_dep(type, repoDir)
             all_dep_dict = self.merge_dot_dict(dep_dict,all_dep_dict)
