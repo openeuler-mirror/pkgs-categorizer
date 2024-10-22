@@ -23,7 +23,7 @@ def readRepoPkgInfo(repoDir):
     csv_obj = CSV()
     csv_file = csv_obj.generate_rpm_all_csv_files(repoDir)
     log = FCFLLog()
-    log.info("export csvfile:%s" %csv_file)
+    log.info("export csvfile")
     log.info("export dotfile:%s" %dot_file)
     return (dot_file,csv_file)
 
