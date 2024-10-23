@@ -94,7 +94,7 @@ class CSV:
 
         all_csv_head = ["rpm_name","zero_description","zero_summary","description",
                         "summary","primary_rpm_name","primary_description",
-                        "primary_summary","rpm_name"]
+                        "primary_summary"]
         fcfl_configs = fcfl_config()
         all_csv_list = []
         csv_dict_dict = csv_obj.get_all_rpm_repo_dict(repoDir)
@@ -122,19 +122,20 @@ class CSV:
     def generate_fcfl_pkg_rpm_description_csv_file(self,pkgname):
         csv_list = []   
         new_db = STORAGE_SQL()
+        fcfl_configs = fcfl_config()
         csv_dict = new_db.get_pkg_rpm_desc_csv_dict_from_table(pkgname)
+        all_csv_head = ["rpm_name","zero_description","zero_summary","description",
+                        "summary","src_name","srcPkgVersion","srcPkgRelease"]
+        all_csv_list = []
         if csv_dict != {}:
-            new_csv_dict = {}
-            new_csv_dict['rpm_name'] = pkgname
-            new_csv_dict['zero_description'] = csv_dict[pkgname][0]
-            new_csv_dict['zero_summary'] = csv_dict[pkgname][1]
-            new_csv_dict['description'] = csv_dict[pkgname][2]
-            new_csv_dict['summary'] = csv_dict[pkgname][3]
-            new_csv_dict['src_name'] = csv_dict[pkgname][4]
-            new_csv_dict['srcPkgVersion'] = csv_dict[pkgname][5]
-            new_csv_dict['srcPkgRelease'] = csv_dict[pkgname][6]
-            csv_list.append(new_csv_dict)
-            return self.write_csv(csv_list,"fcfl_rpm"+pkgname+"_dec","rpm_header")
+            all_csv_list.append([pkgname,csv_dict[pkgname][0],csv_dict[pkgname][1],csv_dict[pkgname][2],
+                             csv_dict[pkgname][3],csv_dict[pkgname][4],csv_dict[pkgname][5],
+                             csv_dict[pkgname][6]])
+            
+            df = pd.DataFrame(all_csv_list, columns = all_csv_head)
+            path = "{}fcfl_rpm{}_dec.csv".format(fcfl_configs.get_csv_path()).format(pkgname)
+            df.to_csv(path)
+            return path
         else :
             print("%s not in table" %pkgname)
             return ''
@@ -143,19 +144,19 @@ class CSV:
         csv_list = []
         new_db = STORAGE_SQL()
         csv_dict = new_db.get_pkgs_desc_csv_dict_from_table()
+        fcfl_configs = fcfl_config()
+        all_csv_head = ["src_name","zero_description","zero_summary","description",
+                        "summary","primary_rpm_name","primary_description",
+                        "primary_summary","rpm_name"]
+        all_csv_list = []
         for pkg in csv_dict.keys():
-            new_csv_dict = {}
-            new_csv_dict["src_name"] = pkg
-            new_csv_dict["zero_description"] = csv_dict[pkg][0]
-            new_csv_dict["zero_summary"] =  csv_dict[pkg][1]
-            new_csv_dict["description"] = csv_dict[pkg][2]
-            new_csv_dict["summary"] = csv_dict[pkg][3]
-            new_csv_dict["primary_rpm_name"] = csv_dict[pkg][4]
-            new_csv_dict["primary_description"] = csv_dict[pkg][5]
-            new_csv_dict["primary_summary"] = csv_dict[pkg][6]
-            new_csv_dict["rpm_name"] = csv_dict[pkg][7]
-            csv_list.append(new_csv_dict)
-        return self.write_csv(csv_list,"fcfl_src_all","src_header")
+            all_csv_list.append([pkg,csv_dict[pkg][0],csv_dict[pkg][1],csv_dict[pkg][2],
+                                 csv_dict[pkg][3],csv_dict[pkg][4],csv_dict[pkg][5],
+                                csv_dict[pkg][6],csv_dict[pkg][7]])
+        df = pd.DataFrame(all_csv_list, columns = all_csv_head)
+        path = "{}fcfl_src_all.csv".format(fcfl_configs.get_csv_path())
+        df.to_csv(path)
+        return path
 
     def generate_fcfl_pkgs_rpm_description_csv_file(self):  
         csv_list = []   

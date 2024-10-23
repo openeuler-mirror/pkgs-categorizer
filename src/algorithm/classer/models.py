@@ -160,10 +160,10 @@ class BERT:
             lstm_output = Bidirectional(LSTM(512, return_sequences=True), name='bi_lstm')(sequence_output)
             lstm_output = Dropout(0.8)(lstm_output)
             bert_output2 = lstm_output[:, 0, :]
-            bert_output = Concatenate()([bert_output1, bert_output2])       
+            bert_output = Concatenate()([bert_output1, bert_output2])
         elif use_cap:
             capsule = Capsule(num_capsule=10, dim_capsule=16, routings=5)(sequence_output)
-            bert_output = Flatten()(capsule)        
+            bert_output = Flatten()(capsule)
         else:
             bert_output = pooler_output
             
@@ -175,7 +175,7 @@ class BERT:
         
         self.model = Model(text_inputs, output)
         self.model.compile(loss=custom_loss, optimizer=Adam(learning_rate))
-              
+
     def train_val(self, data_package, batch_size, epochs, save_best=True):
         X_input_ids_train, X_token_type_ids_train, X_attention_mask_train, y_train, X_input_ids_test, X_token_type_ids_test, X_attention_mask_test, y_test = data_package
         best_val_score = 0
@@ -201,7 +201,7 @@ class BERT:
             train_score = round(accuracy_score(y_train, predictions),5)
             train_score_list.append(train_score)
             # validation:
-            pred_probs = self.model.predict([X_input_ids_test, X_attention_mask_test, X_token_type_ids_test], verbose=1)[:, :self.num_classes]            
+            pred_probs = self.model.predict([X_input_ids_test, X_attention_mask_test, X_token_type_ids_test], verbose=1)[:, :self.num_classes]
             predictions = np.argmax(pred_probs, axis=1)
             val_score = round(accuracy_score(y_test, predictions),5)
             val_socre_list.append(val_score)
