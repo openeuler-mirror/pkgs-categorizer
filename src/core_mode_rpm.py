@@ -106,7 +106,7 @@ def updatePkg(dotfile, csvpath, reOrg):
     except:
         flag = 1
     if flag == 1:
-        print("exec_calssification failed")
+        print("exec_classification failed")
         return 1
     '''
     """
@@ -266,7 +266,7 @@ def calcAllPkgsLayerClassification(dot_path, csv_path):
     else :
         flag = 1
     if flag == 1:
-        print("exec_calssification failed")
+        print("exec_classification failed")
         return 1
 
     #存储临时文件
