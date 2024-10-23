@@ -20,8 +20,8 @@ test_name = 'cups'
 def srpmName_analyze(srpmName):
     """
     功能：源码包名字解析
-    思路：源码包名用“-”分开后，最有两部分对应的是version和release
-        用“-veesion”将源码包分为两部分，取前面的部分就是源码包名
+    思路：源码包名用“-”分开后，最后两部分对应的是version和release
+        用“-version”将源码包分为两部分，取前面的部分就是源码包名
     """
     srpmName_2 = srpmName.split("-")[-2]
     sName = srpmName.split("-%s" % srpmName_2)[0]
@@ -253,7 +253,7 @@ class DEP:
     def findPkgReq(self, pkgid, repoDir):
         #从req字典中遍历二进制包依赖
         for req_name, req_version, req_release, req_flags in self.req_dict[pkgid]:
-            #在provides中查找提供者,找打会置1.
+            #在provides中查找提供者,找到会置1.
             # 如果req_name 在prov中
             if req_name in self.prov_dict.keys():
                 #print("   find", req_name, " from prov...")
