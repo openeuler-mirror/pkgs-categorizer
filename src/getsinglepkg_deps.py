@@ -97,9 +97,9 @@ class Get_rpm_Dep:
     # get indirect dependences pkgs as layer type
     def get_indirect_deps(self,pkgs):
         indirectrpm = set()
-        indirectrpm.clear
+        indirectrpm.clear()
         getindirectrpm = set()
-        getindirectrpm.clear
+        getindirectrpm.clear()
         if pkgs is None:
             print("pkgs is None")
         else :

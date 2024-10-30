@@ -70,7 +70,7 @@ def get_all_srpm_dep_without_V():
     获取源中的所有源码包直接依赖，不带版本号
     """
     counter = 0
-    dep_dict = {}  #依赖字典 key：不带版本浩的源码包名     value：依赖的源码包名列表（不带版本号）
+    dep_dict = {}  #依赖字典 key：不带版本号的源码包名     value：依赖的源码包名列表（不带版本号）
 
     sql.open_db()
     srpm_name_list = sql.getAllSrcrpm()   #获取源中所有源码包名（此时源码包名带有版本号）
