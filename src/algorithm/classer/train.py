@@ -112,11 +112,11 @@ for i in range(10):
     
     # 调用模型并训练
     model = BERT(bert_path, maxlen, num_classes, learning_rate)
-    train_score_list, val_socre_list, best_val_score, test_score = model.train_val(data_package, batch_size, epochs, save_best=True)
+    train_score_list, val_score_list, best_val_score, test_score = model.train_val(data_package, batch_size, epochs, save_best=True)
 
     # print('test acc:', str(test_score))
     # print('best val acc:', str(best_val_score))
     # print('train acc list:\n', str(train_score_list))
-    # print('val acc list:\n', str(val_socre_list), '\n')
+    # print('val acc list:\n', str(val_score_list), '\n')
 
 print("train done!")
