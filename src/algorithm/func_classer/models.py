@@ -2,13 +2,12 @@ import numpy as np
 import time
 import tensorflow as tf
 tf.compat.v1.disable_eager_execution()
-import time
 #from keras.losses import sparse_categorical_crossentropy
 from keras.losses import categorical_crossentropy
 from keras.models import Sequential,Model
 from keras.optimizers import adam_v2
 from keras.layers import Input,Dense,LSTM,Embedding,Conv1D,MaxPooling1D,GlobalMaxPooling1D,Layer
-from keras.layers import Flatten,Dropout,Concatenate,Lambda,Multiply,Reshape,Dot,Bidirectional
+from keras.layers import Flatten,Dropout,Concatenate,Bidirectional
 import keras.backend as K
 from tensorflow.keras.utils import to_categorical
 from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score
