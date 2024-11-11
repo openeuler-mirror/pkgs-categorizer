@@ -181,7 +181,7 @@ class BERT:
         best_val_score = 0
         test_score = 0
         train_score_list = []
-        val_socre_list = []
+        val_score_list = []
         """实验说明：
         每一轮train完，在val上测试，记录其accuracy，
         每当val-acc达到新高，则保存当前模型
@@ -204,7 +204,7 @@ class BERT:
             pred_probs = self.model.predict([X_input_ids_test, X_attention_mask_test, X_token_type_ids_test], verbose=1)[:, :self.num_classes]
             predictions = np.argmax(pred_probs, axis=1)
             val_score = round(accuracy_score(y_test, predictions),5)
-            val_socre_list.append(val_score)
+            val_score_list.append(val_score)
             t2 = time.time()
             print('Epoch', i + 1, ' | train acc:', train_score, ' | val acc:',val_score)
             # save best model according to validation & test result:
@@ -219,7 +219,7 @@ class BERT:
                 if save_best:
                     self.model.save_weights('best_model_bert.h5')
                     print('best model saved!')
-        return train_score_list, val_socre_list, best_val_score, test_score
+        return train_score_list, val_score_list, best_val_score, test_score
 
     def predict(self, bert_inputs):
         self.model.load_weights('./best_model_bert.h5')

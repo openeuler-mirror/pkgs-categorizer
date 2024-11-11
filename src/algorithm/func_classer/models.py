@@ -182,7 +182,7 @@ class BERT:
         best_val_score = 0
         test_score = 0
         train_score_list = []
-        val_socre_list = []
+        val_score_list = []
         """实验说明：
         每一轮train完，在val上测试，记录其accuracy，
         每当val-acc达到新高，则保存当前模型
