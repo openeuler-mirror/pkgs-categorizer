@@ -58,8 +58,8 @@ def originAlgorithm():
     原始分层算法
     """
     firstLayer = []
-    secondLyer = []
-    thriedLayer = []
+    secondLayer = []
+    thirdLayer = []
     fourLayer = []
     nodeSet_Init()         #节点集合的初始化
     nodeSet.dfs()           #dfs算法找环
@@ -72,23 +72,23 @@ def originAlgorithm():
     for key in nodeSet.packageLayer.keys():
         if nodeSet.packageLayer[key] == 1:
             if len(nodeSet.nodeSet[key].outNode) == 0:
-                secondLyer.append(key)
+                secondLayer.append(key)
             else:
                 firstLayer.append(key)
         elif nodeSet.packageLayer[key] == 2:
             if len(nodeSet.nodeSet[key].inNode) == 0:
-                secondLyer.append(key)
+                secondLayer.append(key)
             else:
                 fourLayer.append(key)
         else :
-            thriedLayer.append(key)
+            thirdLayer.append(key)
     pprint.pprint(nodeSet.packageLayer)
     print("firstLayer len = ",len(firstLayer))
     print("firstLayer=",firstLayer)
-    print("secondLyer len = ",len(secondLyer))
-    print("secondLyer=",secondLyer)
-    print("thriedLayer len = ",len(thriedLayer))
-    print("thriedLayer=",thriedLayer)
+    print("secondLayer len = ",len(secondLayer))
+    print("secondLayer=",secondLayer)
+    print("thirdLayer len = ",len(thirdLayer))
+    print("thirdLayer=",thirdLayer)
     print("fourLayer len = ",len(fourLayer))
     print("fourLayer=",fourLayer)
     
